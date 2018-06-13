@@ -152,7 +152,7 @@ nav h1 a {
   display: block;
   margin: 0;
   max-width: 100%;
-  min-height: 248px;
+  min-height: 135px;
   min-width: 100%;
 }
 #restaurants-list li h1 {
@@ -311,11 +311,11 @@ nav h1 a {
   ul {
     max-height: 50vh;
     overflow: scroll;
-    padding-top: 25px;
   }
 
   #restaurants-list li {
     width: 65%;
+    min-height: 300px;
   }
 
   #maincontent {
@@ -334,11 +334,42 @@ nav h1 a {
     width: 95%;
   }
 
-  .restaurant-img{
-    min-height: 135px;
-  }
-
   #map {
     height: 100%;
+  }
+}
+
+
+@media only screen and (max-width: 425px) {
+  #restaurants-list li {
+    width: 70%;
+    min-height: 300px;
+  }
+  .filter-options {
+    height: 5%;
+    padding-top: 10px;
+  }
+  .filter-options select {
+    width: 95%;
+  }
+  #map-container{
+    display: none
+  }
+}
+
+@media only screen and (min-width: 426px) and (max-width: 900px) {
+  #restaurants-list li {
+    width: 80%;
+    min-height: 300px;
+  }
+  .filter-options {
+    height: 5%;
+    padding-top: 10px;
+  }
+  .filter-options select {
+    width: 95%;
+  }
+  #map-container {
+    display: none
   }
 }
