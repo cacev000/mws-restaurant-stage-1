@@ -6,6 +6,16 @@ var newMap;
  */
 document.addEventListener('DOMContentLoaded', (event) => {  
   initMap();
+  if(document.URL.search('restaurant.html')){
+    document.getElementById('map-container').style.display = 'block';
+    document.getElementById('map-container').style.width = '100%';
+    document.getElementById('map-container').style.height = '50%';
+    document.getElementsByClassName('inside')[0].classList.remove('inside');
+  }
+
+  setTimeout(() => {
+    self.newMap.invalidateSize();
+  }, 500);
 });
 
 /**

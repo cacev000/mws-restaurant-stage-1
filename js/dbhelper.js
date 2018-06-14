@@ -23,6 +23,7 @@ class DBHelper {
         const json = JSON.parse(xhr.responseText);
         const restaurants = json.restaurants;
         callback(null, restaurants);
+        
       } else { // Oops!. Got an error from server.
         const error = (`Request failed. Returned status of ${xhr.status}`);
         callback(error, null);
