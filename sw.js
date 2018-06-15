@@ -1,24 +1,5 @@
 // Used similar method from previous udacity class https://classroom.udacity.com/nanodegrees/nd024/parts/0bf842e9-7269-42de-b68b-812ca7823517
 // where they explain it under: introducing the service worker
-// self.addEventListener('fetch', event => {
-//     event.respondWith(
-//         fetch(event.request)
-//         // if successful return response
-//         .then(response => {
-//             // if path is incorrect respond with something
-//             if(response.status == 404){
-//                 return fetch('/img/1.jpg');
-//             }
-//             // if path is correct return data
-//             return response;
-//         })
-//         // if it fails or is offline it will catch an error
-//         .catch(err =>{
-//             return new Response('You are offline or something went wrong');
-//         })
-//     );
-// });
-
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open('restaurant-stage-v1').then(cache => {
@@ -26,20 +7,30 @@ self.addEventListener('install', event => {
                 [
                     '/',
                     'js/main.js',
-                    '/js/restaurant_info.js',
-                    '/js/dbhelper.js',
-                    '/img/1.jpg',
-                    '/img/2.jpg',
-                    '/img/3.jpg',
-                    '/img/4.jpg',
-                    '/img/5.jpg',
-                    '/img/6.jpg',
-                    '/img/7.jpg',
-                    '/img/8.jpg',
-                    '/img/9.jpg',
-                    '/img/10.jpg',
-                    '/css/styles.css',
-                    '/data/restaurants.json',
+                    'js/restaurant_info.js',
+                    'js/dbhelper.js',
+                    'restaurant.html?id=1',
+                    'restaurant.html?id=2',
+                    'restaurant.html?id=3',
+                    'restaurant.html?id=4',
+                    'restaurant.html?id=5',
+                    'restaurant.html?id=6',
+                    'restaurant.html?id=7',
+                    'restaurant.html?id=8',
+                    'restaurant.html?id=9',
+                    'restaurant.html?id=10',
+                    'img/1.jpg',
+                    'img/2.jpg',
+                    'img/3.jpg',
+                    'img/4.jpg',
+                    'img/5.jpg',
+                    'img/6.jpg',
+                    'img/7.jpg',
+                    'img/8.jpg',
+                    'img/9.jpg',
+                    'img/10.jpg',
+                    'css/styles.css',
+                    'data/restaurants.json',
                     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css',
                     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js'
                 ]
