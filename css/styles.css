@@ -277,7 +277,7 @@ nav h1 a {
 
 @media only screen and (min-width: 901px) {
   ul{
-    max-height: 50vh;
+    max-height: 100vh;
     overflow: scroll;
     padding-top: 25px;
   }
@@ -360,9 +360,6 @@ nav h1 a {
   .filter-options select {
     width: 95%;
   }
-  #map-container{
-    display: none
-  }
 
   /* style for restaurant.html file */
   #breadcrumb{
@@ -415,9 +412,6 @@ nav h1 a {
   }
   .filter-options select {
     width: 95%;
-  }
-  #map-container {
-    display: none
   }
 
   /* style for restaurant.html file */

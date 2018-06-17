@@ -1,5 +1,5 @@
-let restaurant;
-var newMap;
+let restaurant,
+    newMap;
 
 if (navigator.serviceWorker) {
   navigator.serviceWorker.register('/sw.js', {scope: '/restaurant'}).then(result => {
