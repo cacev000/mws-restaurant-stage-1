@@ -1,0 +1,13 @@
+{
+    "short_name": "RR",
+    "name": "Restaurant Review Part 2",
+    "icons": [{
+        "src": "/img/review.png",
+        "type": "image/png",
+        "sizes": "512x512"
+    }],
+    "start_url": "/",
+    "background_color": "#333",
+    "display": "standalone",
+    "theme_color": "#333"
+}

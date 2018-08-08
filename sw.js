@@ -9,16 +9,18 @@ self.addEventListener('install', event => {
                     'js/main.js',
                     'js/restaurant_info.js',
                     'js/dbhelper.js',
-                    'restaurant.html?id=1',
-                    'restaurant.html?id=2',
-                    'restaurant.html?id=3',
-                    'restaurant.html?id=4',
-                    'restaurant.html?id=5',
-                    'restaurant.html?id=6',
-                    'restaurant.html?id=7',
-                    'restaurant.html?id=8',
-                    'restaurant.html?id=9',
-                    'restaurant.html?id=10',
+                    'js/idbhelper.js',
+                    'manifest.json',
+                    // 'restaurant.html?id=1',
+                    // 'restaurant.html?id=2',
+                    // 'restaurant.html?id=3',
+                    // 'restaurant.html?id=4',
+                    // 'restaurant.html?id=5',
+                    // 'restaurant.html?id=6',
+                    // 'restaurant.html?id=7',
+                    // 'restaurant.html?id=8',
+                    // 'restaurant.html?id=9',
+                    // 'restaurant.html?id=10',
                     'img/1.jpg',
                     'img/2.jpg',
                     'img/3.jpg',
@@ -32,7 +34,8 @@ self.addEventListener('install', event => {
                     'css/styles.css',
                     'data/restaurants.json',
                     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css',
-                    'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js'
+                    'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js',
+                    'node_modules/idb/lib/idb.js'
                 ]
             );
         })
@@ -42,7 +45,7 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request).then(response => {
-            if(response) return response;
+            if (response) return response;
             return fetch(event.request);
         })
     );

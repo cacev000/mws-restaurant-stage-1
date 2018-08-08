@@ -24,6 +24,7 @@ class DBHelper {
             if (xhr.status === 200) { // Got a success response from server!
                 const json = JSON.parse(xhr.responseText);
                 const restaurants = json;
+                IDBHelper.addRestaurantIdb(restaurants);
                 callback(null, restaurants);
 
             } else { // Oops!. Got an error from server.
@@ -165,8 +166,8 @@ class DBHelper {
                 title: restaurant.name,
                 alt: restaurant.name,
                 url: DBHelper.urlForRestaurant(restaurant)
-            })
-            marker.addTo(newMap);
+            });
+            marker.addTo(map);
             return marker;
         }
         /* static mapMarkerForRestaurant(restaurant, map) {
