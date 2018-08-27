@@ -22,7 +22,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
     initMap(); // added 
     fetchNeighborhoods();
     fetchCuisines();
+    fetchReviews();
 });
+
+// Fetch all reviews
+fetchReviews = () => {
+    IDBHelper.fetchReviews((error, reviews) => {
+        if (error) {
+            callback(error, null);
+        }
+    });
+};
 
 /**
  * Fetch all neighborhoods and set their HTML.

@@ -2,15 +2,34 @@ class IDBHelper {
 
     // creating DB keyval
     static initIdb() {
-        this.dbPromise = idb.open('test-db', 2, function name(upgradeDb) {
+        this.dbPromise = idb.open('test-db', 3, function name(upgradeDb) {
             switch (upgradeDb.oldVersion) {
                 case 0:
                     var keyValStore = upgradeDb.createObjectStore('keyval');
                     keyValStore.put('world', 'hello');
                 case 1:
                     upgradeDb.createObjectStore('restaurant', { keyPath: 'id' });
+                case 2:
+                    upgradeDb.createObjectStore('reviews', {
+                        keyPath: 'id'
+                    });
             }
         });
+    }
+
+    // reviews data
+    static get DATABASE_URL_REVIEWS() {
+            const port = 1337; // Change this to your server port
+            return `http://localhost:${port}/reviews`;
+            // const port = 8000 // Change this to your server port
+            // return `http://localhost:${port}/data/restaurants.json`;
+        }
+        // reviews by id data
+    static get DATABASE_URL_REVIEWS_PER_ID() {
+        const port = 1337; // Change this to your server port
+        return `http://localhost:${port}/reviews/?restaurant_id=`;
+        // const port = 8000 // Change this to your server port
+        // return `http://localhost:${port}/data/restaurants.json`;
     }
 
     static readKeyvalDb() {
@@ -51,6 +70,21 @@ class IDBHelper {
         });
     }
 
+    // creates Transaction for storing restaurants
+    static addReviewsIdb(reviewObj) {
+        this.dbPromise.then(function(db) {
+            var tx = db.transaction('reviews', 'readwrite');
+            var reviewsStore = tx.objectStore('reviews');
+
+            reviewObj.forEach(element => {
+                reviewsStore.put(element);
+            });
+            return tx.complete;
+        }).then(function name(params) {
+            console.log('Added reviews');
+        });
+    }
+
     // Read stored restaurants in restaurant DB
     static getRestaurants(callback) {
         this.dbPromise.then(function(db) {
@@ -60,6 +94,65 @@ class IDBHelper {
             return restaurantStore.getAll();
         }).then(function(restaurant) {
             callback(null, restaurant);
+        });
+    }
+
+    // get all the reviews
+    static fetchReviews(callback) {
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', IDBHelper.DATABASE_URL_REVIEWS);
+        xhr.onload = () => {
+            if (xhr.status === 200) { // Got a success response from server!
+                const json = JSON.parse(xhr.responseText);
+                const reviews = json;
+                IDBHelper.addReviewsIdb(reviews);
+                callback(null, reviews);
+
+            } else { // Oops!. Got an error from server.
+                const error = (`Request failed. Returned status of ${xhr.status}`);
+                callback(error, null);
+            }
+        };
+        xhr.send();
+    }
+
+    // post new review to restaurant
+    static postReview(objToSend) {
+        this.dbPromise.then(db => {
+            const tx = db.transaction('reviews', 'readwrite');
+
+            var countRequest = tx.objectStore('reviews').count();
+
+            countRequest.onsuccess = function() {
+                objToSend.id = countRequest.result + 1;
+                tx.objectStore('reviews').put(objToSend);
+                return tx.complete;
+            };
+        }).then(function name(params) {
+            console.log('Added a new review');
+        });
+
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', IDBHelper.DATABASE_URL_REVIEWS);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(objToSend));
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.readyState === 200) {
+                return xhr.responseText;
+            }
+        };
+    }
+
+    // Read restaurants reviews in DB
+    static getReviews(callback) {
+        this.dbPromise.then(function(db) {
+            var tx = db.transaction('reviews');
+            var reviewsStore = tx.objectStore('reviews');
+
+            return reviewsStore.getAll();
+        }).then(function(review) {
+            callback(null, review);
         });
     }
 
@@ -133,4 +226,55 @@ class IDBHelper {
         marker.addTo(map);
         return marker;
     }
+
+    // Get Restaurant by ID
+    static getRestaurantById(id, callback) {
+        // fetch all restaurants with proper error handling.
+        IDBHelper.getRestaurants((error, restaurants) => {
+            if (error) {
+                callback(error, null);
+            } else {
+                const restaurant = restaurants.find(r => r.id == id);
+                if (restaurant) { // Got the restaurant
+                    callback(null, restaurant);
+                } else { // Restaurant does not exist in the database
+                    callback('Restaurant does not exist', null);
+                }
+            }
+        });
+    }
+
+    // Get Restaurant by ID
+    static getReviewById(id, callback) {
+        // fetch all restaurants with proper error handling.
+        IDBHelper.getReviewsPerId(id, (error, reviews) => {
+            if (error) {
+                callback(error, null);
+            } else {
+                if (reviews) { // Got the review
+                    callback(null, reviews);
+                } else { // Review does not exist in the database
+                    callback('Review does not exist', null);
+                }
+            }
+        });
+    }
+
+    static getReviewsPerId(id, callback) {
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', IDBHelper.DATABASE_URL_REVIEWS_PER_ID + id);
+        xhr.onload = () => {
+            if (xhr.status === 200) { // Got a success response from server!
+                const json = JSON.parse(xhr.responseText);
+                const reviews = json;
+                callback(null, reviews);
+
+            } else { // Oops!. Got an error from server.
+                const error = (`Request failed. Returned status of ${xhr.status}`);
+                callback(error, null);
+            }
+        };
+        xhr.send();
+    }
+
 }

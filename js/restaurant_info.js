@@ -1,4 +1,5 @@
 let restaurant,
+    review,
     newMap;
 
 if (navigator.serviceWorker) {
@@ -6,7 +7,7 @@ if (navigator.serviceWorker) {
         console.log('Registered Service Worker');
     }).catch(err => {
         console.log('Error, unable to register Service Worker');
-    })
+    });
 } else {
     console.log('Service workers are not supported.');
 }
@@ -15,6 +16,7 @@ if (navigator.serviceWorker) {
  * Initialize map as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+    IDBHelper.initIdb();
     initMap();
     if (document.URL.search('restaurant.html')) {
         document.getElementById('map-container').style.display = 'block';
@@ -22,11 +24,39 @@ document.addEventListener('DOMContentLoaded', (event) => {
         document.getElementById('map-container').style.height = '50%';
         document.getElementsByClassName('inside')[0].classList.remove('inside');
     }
+    getReviewByRestaurantId((error, restaurant) => {
+        if (error) { // Got an error!
+            console.error(error);
+        }
+    });
 
     setTimeout(() => {
         self.newMap.invalidateSize();
     }, 500);
 });
+
+getReviewByRestaurantId = (callback) => {
+    if (self.review) { // review already fetched!
+        callback(null, self.review);
+        return;
+    }
+
+    const id = getParameterByName('id');
+    if (!id) { // no id found in URL
+        error = 'No review id in URL';
+        callback(error, null);
+    } else {
+        IDBHelper.getReviewsPerId(id, (error, review) => {
+            self.review = review;
+            if (!review) {
+                console.error(error);
+                return;
+            }
+            fillReviewsHTML(id);
+            callback(null, review);
+        });
+    }
+};
 
 /**
  * Initialize leaflet map
@@ -84,6 +114,16 @@ fetchRestaurantFromURL = (callback) => {
         error = 'No restaurant id in URL'
         callback(error, null);
     } else {
+        IDBHelper.getRestaurantById(id, (error, restaurant) => {
+            self.restaurant = restaurant;
+            if (!restaurant) {
+                console.error(error);
+                return;
+            }
+            fillRestaurantHTML();
+            callback(null, restaurant);
+        });
+
         DBHelper.fetchRestaurantById(id, (error, restaurant) => {
             self.restaurant = restaurant;
             if (!restaurant) {
@@ -118,8 +158,6 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     if (restaurant.operating_hours) {
         fillRestaurantHoursHTML();
     }
-    // fill reviews
-    fillReviewsHTML();
 };
 
 /**
@@ -145,7 +183,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+fillReviewsHTML = (id, reviews = self.review) => {
     const container = document.getElementById('reviews-container');
     const title = document.createElement('h2');
     title.innerHTML = 'Reviews';
@@ -159,7 +197,9 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
     }
     const ul = document.getElementById('reviews-list');
     reviews.forEach(review => {
-        ul.appendChild(createReviewHTML(review));
+        if (review.restaurant_id === parseInt(id)) {
+            ul.appendChild(createReviewHTML(review));
+        }
     });
     container.appendChild(ul);
 };
@@ -175,7 +215,7 @@ createReviewHTML = (review) => {
     li.appendChild(name);
 
     const date = document.createElement('p');
-    date.innerHTML = review.date;
+    date.innerHTML = new Date(review.updatedAt);
     li.appendChild(date);
 
     const rating = document.createElement('p');
@@ -215,3 +255,27 @@ getParameterByName = (name, url) => {
         return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+document.getElementById('submitFeedbackForm').onclick = function() {
+    const id = getParameterByName('id');
+
+    var formComponent = document.forms[0];
+    var componentsInForm = document.forms[0].length - 1;
+    var sendFeedbackObj = {
+        'restaurant_id': parseInt(id),
+        'name': '',
+        'rating': '',
+        'comments': ''
+    };
+    for (let index = 0; index < componentsInForm; index++) {
+        if (formComponent[index].name === 'name') {
+            sendFeedbackObj.name = formComponent[index].value;
+        } else if (formComponent[index].name === 'rating') {
+            sendFeedbackObj.rating = formComponent[index].value;
+        } else {
+            sendFeedbackObj.comments = formComponent[index].value;
+        }
+    }
+
+    IDBHelper.postReview(sendFeedbackObj);
+};
