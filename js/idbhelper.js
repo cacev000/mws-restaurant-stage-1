@@ -11,7 +11,8 @@ class IDBHelper {
                     upgradeDb.createObjectStore('restaurant', { keyPath: 'id' });
                 case 2:
                     upgradeDb.createObjectStore('reviews', {
-                        keyPath: 'id'
+                        keyPath: 'id',
+                        autoIncrement: true
                     });
             }
         });
@@ -116,30 +117,34 @@ class IDBHelper {
         xhr.send();
     }
 
-    // post new review to restaurant
-    static postReview(objToSend) {
+    static checkForConnection(callback) {
         this.dbPromise.then(db => {
             const tx = db.transaction('reviews', 'readwrite');
-
-            var countRequest = tx.objectStore('reviews').count();
-
-            countRequest.onsuccess = function() {
-                objToSend.id = countRequest.result + 1;
-                tx.objectStore('reviews').put(objToSend);
-                return tx.complete;
-            };
-        }).then(function name(params) {
-            console.log('Added a new review');
+            return tx.objectStore('reviews').getAll();
+        }).then(function(reviews) {
+            callback(null, reviews);
         });
+    }
 
+    // post new review to restaurant
+    static postReview(objToSend) {
         let xhr = new XMLHttpRequest();
         xhr.open('POST', IDBHelper.DATABASE_URL_REVIEWS);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify(objToSend));
 
+        this.dbPromise.then(db => {
+            const tx = db.transaction('reviews', 'readwrite');
+            tx.objectStore('reviews').put(objToSend);
+            return tx.complete;
+        });
+
         xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.readyState === 200) {
-                return xhr.responseText;
+            if (xhr.readyState === 4 && xhr.status === 0) {
+                IDBHelper.postReview(objToSend);
+            } else if (xhr.readyState === 4 && xhr.status === 201) {
+                console.log('Added a new review');
+                location.reload();
             }
         };
     }
