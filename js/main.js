@@ -228,6 +228,30 @@ createRestaurantHTML = (restaurant) => {
     more.href = (DBHelper.urlForRestaurant(restaurant)) ? DBHelper.urlForRestaurant(restaurant) : IDBHelper.getUrlForRestaurant(restaurant);
     li.append(more);
 
+    const favoriteIcon = document.createElement('i');
+    favoriteIcon.setAttribute('class', 'far fa-heart');
+    favoriteIcon.id = 'favoriteRestaurant' + restaurant.id;
+    favoriteIcon.dataset.favorite = restaurant.is_favorite;
+    if (restaurant.is_favorite == "true" || restaurant.is_favorite == true) {
+        favoriteIcon.style.color = 'pink';
+    }
+    favoriteIcon.onclick = function(event) {
+        var isFavorite = (event.currentTarget.dataset.favorite == "true" || event.currentTarget.dataset.favorite == true) ? true : false;
+        var restaurantId;
+        if (isFavorite) {
+            favoriteIcon.dataset.favorite = false;
+            event.currentTarget.style.color = 'black';
+            restaurantId = parseInt(event.currentTarget.id.slice(18, event.currentTarget.id.length));
+            IDBHelper.favoriteRestaurant(restaurantId, false);
+        } else {
+            favoriteIcon.dataset.favorite = true;
+            event.currentTarget.style.color = 'pink';
+            restaurantId = parseInt(event.currentTarget.id.slice(18, event.currentTarget.id.length));
+            IDBHelper.favoriteRestaurant(restaurantId, true);
+        }
+    };
+    li.append(favoriteIcon);
+
     return li;
 };
 

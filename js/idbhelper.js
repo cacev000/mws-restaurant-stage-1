@@ -19,6 +19,14 @@ class IDBHelper {
     }
 
     // reviews data
+    static get DATABASE_URL() {
+        const port = 1337; // Change this to your server port
+        return `http://localhost:${port}/restaurants/`;
+        // const port = 8000 // Change this to your server port
+        // return `http://localhost:${port}/data/restaurants.json`;
+    }
+
+    // reviews data
     static get DATABASE_URL_REVIEWS() {
             const port = 1337; // Change this to your server port
             return `http://localhost:${port}/reviews`;
@@ -282,4 +290,10 @@ class IDBHelper {
         xhr.send();
     }
 
+    static favoriteRestaurant(id, isFavorite) {
+        let xhr = new XMLHttpRequest();
+        xhr.open('PUT', IDBHelper.DATABASE_URL + id + '/?is_favorite=' + isFavorite, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(null);
+    }
 }

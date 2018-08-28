@@ -240,6 +240,12 @@ nav h1 a {
     text-align: center;
     text-decoration: none;
     text-transform: uppercase;
+    width: -webkit-fill-available;
+}
+
+#restaurants-list li i {
+    margin-top: 15px;
+    font-size: 40px;
 }
 
 
